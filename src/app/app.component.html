@@ -1,94 +1,124 @@
-
-
-
 <div id="container">
-  
   <div id="body">
     <main role="main" class="container">
-      <div >
-      
-        <div class="row" style="margin-top: 30px;">
+      <div>
+        <div class="row" style="margin-top: 30px">
+          <div class="col-md-4"></div>
           <div class="col-md-4">
+            <p style="text-align: center; font-size: 18px">
+              Search for vaccine slots without registration
+            </p>
+            <br />
+
+            <form (ngSubmit)="getSlots()" [formGroup]="formName">
+              <div class="form-group">
+                <mat-form-field appearance="outline" style="width: 100%">
+                  <mat-label>Select State</mat-label>
+                  <mat-select formControlName="states">
+                    <mat-option
+                      *ngFor="let state of statesList?.states"
+                      [value]="state.state_id"
+                      (click)="stateSelected(state.state_id)"
+                      >{{ state.state_name }}</mat-option
+                    >
+                  </mat-select>
+                  <mat-error *ngIf="stateRequired">
+                    <span>Please select a state</span>
+                  </mat-error>
+                </mat-form-field>
+
+                <br />
+
+                <mat-form-field appearance="outline" style="width: 100%">
+                  <mat-label>Select District</mat-label>
+                  <mat-select formControlName="districts">
+                    <mat-option
+                      *ngFor="let district of districtList?.districts"
+                      [value]="district.district_id"
+                      >{{ district.district_name }}</mat-option
+                    >
+                  </mat-select>
+                  <mat-error *ngIf="formName.controls.districts.invalid">
+                    <span>Please select a district</span>
+                  </mat-error>
+                </mat-form-field>
+
+                <br />
+                <p style="text-align: center">OR</p>
+
+                <mat-form-field appearance="outline" style="width: 100%">
+                  <mat-label>Pincode</mat-label>
+                  <input formControlName="pincode" matInput />
+                  <mat-error
+                    *ngIf="
+                      formName.controls.pincode.touched &&
+                      formName.controls.pincode.invalid
+                    "
+                  >
+                    <span>Enter valid pincode</span>
+                  </mat-error>
+                </mat-form-field>
+
+                <p style="text-align: center">
+                  <button mat-raised-button type="submit">Search</button>
+                </p>
+              </div>
+            </form>
           </div>
-          <div class="col-md-4">
-            <p style="text-align: center; font-size: 18px;">Search for vaccine slots without registration</p>
-            <br>
-            <mat-form-field appearance="outline" style="width: 100%;">
-              <mat-label>Select State</mat-label>
-              <mat-select [formControl]="states">
-         
-                <mat-option *ngFor="let state of statesList?.states" [value]="state.state_id"
-                (click)="stateSelected(state.state_id)">{{state.state_name}}</mat-option>
-              </mat-select>
-            </mat-form-field>
-      
-            <br>
-      
-            <mat-form-field appearance="outline" style="width: 100%;">
-              <mat-label>Select District</mat-label>
-              <mat-select [formControl]="districts">
-         
-                <mat-option *ngFor="let district of districtList?.districts" [value]="district.district_id"
-                >{{district.district_name}}</mat-option>
-              </mat-select>
-            </mat-form-field>
-      
-            <br>
-      
-            <p style="text-align: center;"><button mat-raised-button (click)="getSlots()"> Search</button></p>
-          </div>
-          <div class="col-md-4">
-           
-          </div>
-          
+          <div class="col-md-4"></div>
         </div>
-      
-        <div class="row" style="margin-top: 30px;">
-          <div class="col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-8 offset-sm-2">
-      <div class="table-responsive">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th scope="col">#</th>
-                  <th scope="col">Center Name</th>
-                  <!-- <th scope="col">State</th>
+
+        <div class="row" style="margin-top: 30px">
+          <div
+            class="col-lg-8 offset-lg-2 col-md-8 offset-md-2 col-sm-8 offset-sm-2"
+          >
+            <div class="table-responsive">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Center Name</th>
+                    <!-- <th scope="col">State</th>
                   <th scope="col">District</th> -->
-                  <th scope="col">Pincode</th>
-                  <th scope="col">Available date</th>
-                  <th scope="col">Number of slots</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let slot of slotsListFinal;let i=index;">
-                  <th scope="row">{{i+1}}</th>
-                  <td>{{slot.name}}</td>
-                  <!-- <td>{{slot.state_name}}</td>
+                    <th scope="col">Pincode</th>
+                    <th scope="col">Available date</th>
+                    <th scope="col">Number of slots</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let slot of slotsListFinal; let i = index">
+                    <th scope="row">{{ i + 1 }}</th>
+                    <td>{{ slot.name }}</td>
+                    <!-- <td>{{slot.state_name}}</td>
                   <td>{{slot.district_name}}</td> -->
-                  <td>{{slot.pincode}}</td>
-                  <td>{{slot.earliestDate}}</td>
-                  <td>{{slot.earliestDate}}</td>
-                  <td>{{slot.numberOfSlots}}</td>
-                </tr>
-               
-              </tbody>
-            </table>
-          </div>
+                    <td>{{ slot.pincode }}</td>
+                    <td>{{ slot.earliestDate }}</td>
+                    <td>{{ slot.earliestDate }}</td>
+                    <td>{{ slot.numberOfSlots }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
             <div *ngIf="noSlotsAvailable">
-              <p style="text-align: center;">Currently no slots available for this selection</p>
+              <p style="text-align: center">
+                Currently no slots available for this selection
+              </p>
             </div>
           </div>
-          
         </div>
       </div>
-      </main>
+    </main>
   </div>
   <div id="footer">
-    
-<footer class="footer">
-  <div class="container" style="margin-top: 24px;
-  text-align: center;">
-    <span class="text-muted">made by <a href="https://github.com/indianheisenberg" target="_blank">Ashish</a></span>
-  </div>
-</footer>
+    <footer class="footer">
+      <div class="container" style="margin-top: 24px; text-align: center">
+        <span class="text-muted"
+          >made by
+          <a href="https://github.com/indianheisenberg" target="_blank"
+            >Ashish</a
+          ></span
+        >
+      </div>
+    </footer>
   </div>
 </div>

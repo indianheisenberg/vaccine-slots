@@ -32,4 +32,10 @@ export class CommonService {
     .get<any>("https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByDistrict?district_id="+districtId+"&date="+date)
     .toPromise();
   }
+
+  async getSlotsByPinCode(pincode,date){
+    return this.http
+    .get<any>("https://cdn-api.co-vin.in/api/v2/appointment/sessions/public/calendarByPin?pincode="+pincode+"&date="+date)
+    .toPromise();
+  }
 }
