@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "vaccine-slot"
+  },
+  "targets": {
+    "vaccine-slot": {
+      "hosting": {
+        "vaccineslots": [
+          "vaccine-slot"
+        ]
+      }
+    }
+  }
+}

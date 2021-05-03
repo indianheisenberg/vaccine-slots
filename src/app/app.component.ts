@@ -1,10 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  Validators
-} from '@angular/forms';
+import { AngularFireAnalytics } from '@angular/fire/analytics';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CommonService } from './services/common.service';
 @Component({
   selector: 'app-root',
@@ -12,20 +8,21 @@ import { CommonService } from './services/common.service';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent implements OnInit {
-  constructor(private commonService: CommonService, private fb: FormBuilder) {}
   formName: FormGroup;
-  title = 'vaccineslots';
-  states = new FormControl();
-  districts = new FormControl();
-  pincode = new FormControl();
   statesList: any;
   districtList: any;
   slotsList: any;
-  slotsListFinal: Slots[];
+  slotsListFinal: Slots[] = [];
   slot: Slots;
   noSlotsAvailable: any;
   districtRequired: any;
   stateRequired: any;
+
+  constructor(
+    private commonService: CommonService,
+    private fb: FormBuilder,
+    private analytics: AngularFireAnalytics
+  ) {}
 
   async ngOnInit(): Promise<void> {
     this.formName = this.fb.group({
@@ -51,6 +48,12 @@ export class AppComponent implements OnInit {
   }
 
   async getSlots() {
+    this.analytics.logEvent('slots search event', {
+      state: this.formName.controls.states.value,
+      district: this.formName.controls.districts.value,
+      pincode: this.formName.controls.pincode.value,
+    });
+    this.slotsListFinal = [];
     this.noSlotsAvailable = false;
     if (this.checkValidations()) {
       return;
@@ -84,7 +87,7 @@ export class AppComponent implements OnInit {
         this.slotsList.centers.length > 0
       ) {
         for (let i = 0; i < this.slotsList.centers.length; i++) {
-          let slot: Slots;
+          let slot: Slots = new sampleSlot();
           slot.center_name = this.slotsList.centers[i].name;
           slot.pincode = this.slotsList.centers[i].pincode;
           slot.state_name = this.slotsList.centers[i].state_name;
@@ -95,14 +98,37 @@ export class AppComponent implements OnInit {
             this.slotsList.centers[i].sessions &&
             this.slotsList.centers[i].sessions.length > 0
           ) {
-            slot.earliestDate = this.slotsList.centers[i].sessions[0].date;
-            slot.numberOfSlots = this.slotsList.centers[
-              i
-            ].sessions[0].available_capacity;
-            slot.vaccineType = this.slotsList.centers[i].sessions[0].vaccine;
-            slot.minAge = this.slotsList.centers[i].sessions[0].min_age_limit;
+            for (
+              let y = 0;
+              y < this.slotsList.centers[i].sessions.length;
+              y++
+            ) {
+              if (
+                this.slotsList.centers[i].sessions[y].available_capacity > 0
+              ) {
+                slot.earliestDate = this.slotsList.centers[i].sessions[y].date;
+                slot.numberOfSlots = this.slotsList.centers[i].sessions[
+                  y
+                ].available_capacity;
+                slot.vaccineType = this.slotsList.centers[i].sessions[
+                  y
+                ].vaccine;
+                slot.minAge = this.slotsList.centers[i].sessions[
+                  y
+                ].min_age_limit;
+                break;
+              }
+              slot.earliestDate = this.slotsList.centers[i].sessions[y].date;
+              slot.numberOfSlots = this.slotsList.centers[i].sessions[
+                y
+              ].available_capacity;
+              slot.vaccineType = this.slotsList.centers[i].sessions[y].vaccine;
+              slot.minAge = this.slotsList.centers[i].sessions[y].min_age_limit;
+            }
           }
-          this.slotsListFinal.push(slot);
+          if (slot.numberOfSlots > 0) {
+            this.slotsListFinal.push(slot);
+          }
         }
       } else {
         this.noSlotsAvailable = true;
@@ -136,20 +162,31 @@ export class AppComponent implements OnInit {
     let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
     let yyyy = today.getFullYear();
 
-    const currentDate = mm + '-' + dd + '-' + yyyy;
+    const currentDate = dd + '-' + mm + '-' + yyyy;
     return currentDate;
   }
 }
 
 export interface Slots {
+  center_name: string;
+  state_name: string;
+  district_name: string;
+  block_name: string;
+  pincode: string;
+  from: string;
+  to: string;
+  earliestDate: string;
+  numberOfSlots: number;
+  vaccineType: string;
+  minAge: number;
+}
+
+export class sampleSlot {
   center_name: '';
-  state_name: 'Maharashtra';
-
-  district_name: 'Satara';
-
-  block_name: 'Jaoli';
-
-  pincode: '413608';
+  state_name: '';
+  district_name: '';
+  block_name: '';
+  pincode: '';
   from: '09:00:00';
   to: '18:00:00';
   earliestDate: '';

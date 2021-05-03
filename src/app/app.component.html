@@ -81,23 +81,30 @@
                     <!-- <th scope="col">State</th>
                   <th scope="col">District</th> -->
                     <th scope="col">Pincode</th>
-                    <th scope="col">Available date</th>
-                    <th scope="col">Number of slots</th>
+                    <th scope="col">Min Age</th>
+                    <th scope="col">Next Available Date</th>
+                    <th scope="col">Number Of Slots</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr *ngFor="let slot of slotsListFinal; let i = index">
                     <th scope="row">{{ i + 1 }}</th>
-                    <td>{{ slot.name }}</td>
+                    <td>{{ slot.center_name }}</td>
                     <!-- <td>{{slot.state_name}}</td>
                   <td>{{slot.district_name}}</td> -->
                     <td>{{ slot.pincode }}</td>
-                    <td>{{ slot.earliestDate }}</td>
+                    <td>{{ slot.minAge }}</td>
                     <td>{{ slot.earliestDate }}</td>
                     <td>{{ slot.numberOfSlots }}</td>
+                  
                   </tr>
                 </tbody>
               </table>
+              <div *ngIf="slotsListFinal.length>0">
+                <p style="text-align: center">
+                  go to <a href="https://selfregistration.cowin.gov.in/" target="_blank">cowin</a> app to schedule your slot
+                </p>
+              </div>
             </div>
             <div *ngIf="noSlotsAvailable">
               <p style="text-align: center">
@@ -111,10 +118,10 @@
   </div>
   <div id="footer">
     <footer class="footer">
-      <div class="container" style="margin-top: 24px; text-align: center">
+      <div class="container" style="margin-top: 10px; text-align: center">
         <span class="text-muted"
           >made by
-          <a href="https://github.com/indianheisenberg" target="_blank"
+          <a href="https://www.linkedin.com/in/ashishjec1994" target="_blank"
             >Ashish</a
           ></span
         >
