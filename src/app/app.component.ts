@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AngularFireAnalytics } from '@angular/fire/analytics';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { CommonService } from './services/common.service';
 @Component({
   selector: 'app-root',
@@ -9,14 +9,18 @@ import { CommonService } from './services/common.service';
 })
 export class AppComponent implements OnInit {
   formName: FormGroup;
-  statesList: any;
-  districtList: any;
+  statesList: any = {};
+  districtList: any = {};
   slotsList: any;
   slotsListFinal: Slots[] = [];
+  statesListFiltered : string[] = [];
+  districtListFiltered : string[] = [];
   slot: Slots;
   noSlotsAvailable: any;
   districtRequired: any;
   stateRequired: any;
+
+  stateFilterCtrl : FormControl = new FormControl();
 
   constructor(
     private commonService: CommonService,
@@ -33,6 +37,7 @@ export class AppComponent implements OnInit {
 
     try {
       this.statesList = await this.commonService.getStates();
+      this.statesListFiltered = this.statesList.states;
     } catch (error) {
       console.log(error);
     }
@@ -42,12 +47,17 @@ export class AppComponent implements OnInit {
     this.formName.controls.districts.setValue(null);
     try {
       this.districtList = await this.commonService.getDistricts(stateId);
+      this.districtListFiltered = this.districtList.districts;
     } catch (error) {
       console.log(error);
     }
   }
 
   async getSlots() {
+
+    
+    const district = this.districtList.districts ? this.districtList.districts.find(i=> i.district_name.toLowerCase() === this.formName.controls.districts.value.toLowerCase()) : null;
+    
     this.analytics.logEvent('slots search event', {
       state: this.formName.controls.states.value,
       district: this.formName.controls.districts.value,
@@ -66,7 +76,7 @@ export class AppComponent implements OnInit {
         this.formName.controls.districts.value
       ) {
         this.slotsList = await this.commonService.getSlotsByDistrict(
-          this.formName.controls.districts.value,
+          district.district_id,
           currentDate
         );
       } else if (
@@ -103,31 +113,25 @@ export class AppComponent implements OnInit {
               y < this.slotsList.centers[i].sessions.length;
               y++
             ) {
-              if (
-                this.slotsList.centers[i].sessions[y].available_capacity > 0
-              ) {
-                slot.earliestDate = this.slotsList.centers[i].sessions[y].date;
-                slot.numberOfSlots = this.slotsList.centers[i].sessions[
-                  y
-                ].available_capacity;
-                slot.vaccineType = this.slotsList.centers[i].sessions[
-                  y
-                ].vaccine;
-                slot.minAge = this.slotsList.centers[i].sessions[
-                  y
-                ].min_age_limit;
-                break;
-              }
+
               slot.earliestDate = this.slotsList.centers[i].sessions[y].date;
               slot.numberOfSlots = this.slotsList.centers[i].sessions[
                 y
               ].available_capacity;
-              slot.vaccineType = this.slotsList.centers[i].sessions[y].vaccine;
-              slot.minAge = this.slotsList.centers[i].sessions[y].min_age_limit;
+              slot.vaccineType = this.slotsList.centers[i].sessions[
+                y
+              ].vaccine;
+              slot.minAge = this.slotsList.centers[i].sessions[
+                y
+              ].min_age_limit;
+              
             }
           }
           if (slot.numberOfSlots > 0) {
             this.slotsListFinal.push(slot);
+            this.noSlotsAvailable = false;
+          }else{
+            this.noSlotsAvailable = true;
           }
         }
       } else {
@@ -164,6 +168,20 @@ export class AppComponent implements OnInit {
 
     const currentDate = dd + '-' + mm + '-' + yyyy;
     return currentDate;
+  }
+
+  onKeyState(value){ 
+    this.statesListFiltered = this.statesList.states;
+    this.statesListFiltered = this.statesListFiltered.filter((state : any)=>{
+      return state.state_name.toLowerCase().startsWith(value.toLowerCase())
+    })
+  }
+
+  onKeyDistrict(value){ 
+    this.districtListFiltered = this.districtList.districts;
+    this.districtListFiltered = this.districtListFiltered.filter((district : any)=>{
+      return district.district_name.toLowerCase().startsWith(value.toLowerCase())
+    })
   }
 }
 

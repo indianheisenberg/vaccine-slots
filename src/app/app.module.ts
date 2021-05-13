@@ -13,6 +13,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { AngularFireModule } from '@angular/fire';
 import { AngularFireAnalyticsModule } from '@angular/fire/analytics';
+import { NgxMatSelectSearchModule } from 'ngx-mat-select-search';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 @NgModule({
   declarations: [
     AppComponent
@@ -30,7 +32,9 @@ import { AngularFireAnalyticsModule } from '@angular/fire/analytics';
     ReactiveFormsModule,
     HttpClientModule,
     AngularFireModule.initializeApp(environment.firebaseConfig),
-    AngularFireAnalyticsModule
+    AngularFireAnalyticsModule,
+    NgxMatSelectSearchModule,
+    MatAutocompleteModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -12,36 +12,45 @@
 
             <form (ngSubmit)="getSlots()" [formGroup]="formName">
               <div class="form-group">
+               
+
                 <mat-form-field appearance="outline" style="width: 100%">
-                  <mat-label>Select State</mat-label>
-                  <mat-select formControlName="states">
-                    <mat-option
-                      *ngFor="let state of statesList?.states"
-                      [value]="state.state_id"
-                      (click)="stateSelected(state.state_id)"
-                      >{{ state.state_name }}</mat-option
-                    >
-                  </mat-select>
-                  <mat-error *ngIf="stateRequired">
-                    <span>Please select a state</span>
-                  </mat-error>
+                  <mat-label>Select state</mat-label>
+                  <input type="text"
+                         placeholder="Pick one"
+                         aria-label="Number"
+                         matInput
+                         formControlName="states"
+                         (keyup)="onKeyState($event.target.value)"
+                         [matAutocomplete]="auto1">
+                  <mat-autocomplete #auto1="matAutocomplete">
+                    <mat-option *ngFor="let state of statesListFiltered" [value]="state.state_name" (click)="stateSelected(state.state_id)">
+                      {{ state.state_name }}
+                    </mat-option>
+                  </mat-autocomplete>
                 </mat-form-field>
 
                 <br />
 
                 <mat-form-field appearance="outline" style="width: 100%">
                   <mat-label>Select District</mat-label>
-                  <mat-select formControlName="districts">
-                    <mat-option
-                      *ngFor="let district of districtList?.districts"
-                      [value]="district.district_id"
-                      >{{ district.district_name }}</mat-option
-                    >
-                  </mat-select>
+                  <input type="text"
+                         placeholder="Pick one"
+                         aria-label="Number"
+                         matInput
+                         formControlName="districts"
+                         (keyup)="onKeyDistrict($event.target.value)"
+                         [matAutocomplete]="auto2">
+                  <mat-autocomplete #auto2="matAutocomplete">
+                    <mat-option *ngFor="let district of districtListFiltered" [value]="district.district_name">
+                      {{ district.district_name }}
+                    </mat-option>
+                  </mat-autocomplete>
                   <mat-error *ngIf="formName.controls.districts.invalid">
                     <span>Please select a district</span>
                   </mat-error>
                 </mat-form-field>
+
 
                 <br />
                 <p style="text-align: center">OR</p>
@@ -108,7 +117,7 @@
             </div>
             <div *ngIf="noSlotsAvailable">
               <p style="text-align: center">
-                Currently no slots available for this selection
+                Currently all slots are booked or no slots available for this selection
               </p>
             </div>
           </div>
